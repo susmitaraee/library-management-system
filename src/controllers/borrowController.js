@@ -37,55 +37,75 @@ const getBorrowStatistics = async (req, res) => {
   }
 };
 
-// Display all
+// GetAll
 const getAllBorrowings = async (req, res) => {
   try {
-    const { studentId, bookId, status } = req.query;
-    let filters = {};
-    if (studentId) filters.studentId = studentId;
-    if (bookId) filters.bookId = bookId;
-    if (status) filters.status = status;
-
-    const borrowings = await borrowService.getAllBorrowings(filters);
-    res.json(borrowings);
+    const borrowings = await borrowService.getAllBorrowings(req.query);
+    res.status(200).json(borrowings);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Get by ID
+// Get Borrowing by ID
 const getBorrowingById = async (req, res) => {
   try {
     const borrowing = await borrowService.getBorrowingById(req.params.id);
-    if (!borrowing) return res.status(404).json({ message: "Not found" });
-    res.json(borrowing);
+    if (!borrowing) {
+      return res.status(404).json({ message: "Borrowing not found" });
+    }
+    res.status(200).json(borrowing);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update
+// Create / Add Borrowing
+const createBorrowing = async (req, res) => {
+  try {
+    const borrowing = await borrowService.addBorrowing(req.body);
+    res.status(201).json(borrowing);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update Borrowing
 const updateBorrowing = async (req, res) => {
   try {
     const borrowing = await borrowService.updateBorrowing(
       req.params.id,
       req.body
     );
-    if (!borrowing) return res.status(404).json({ message: "Not found" });
-    res.json(borrowing);
+    if (!borrowing) {
+      return res.status(404).json({ message: "Borrowing not found" });
+    }
+    res.status(200).json(borrowing);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Delete
+// Delete Borrowing
 const deleteBorrowing = async (req, res) => {
   try {
     const borrowing = await borrowService.deleteBorrowing(req.params.id);
-    if (!borrowing) return res.status(404).json({ message: "Not found" });
-    res.json({ message: "Borrowing deleted successfully" });
+    if (!borrowing) {
+      return res.status(404).json({ message: "Borrowing not found" });
+    }
+    res.status(200).json({ message: "Borrowing deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Settle Borrowing
+const settleBorrowing = async (req, res) => {
+  try {
+    const borrowing = await borrowService.settleBorrow(req.params.id);
+    res.status(200).json(borrowing);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
   }
 };
 
@@ -96,4 +116,5 @@ export default {
   getBorrowingById,
   updateBorrowing,
   deleteBorrowing,
+  settleBorrowing,
 };

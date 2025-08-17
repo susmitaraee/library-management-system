@@ -5,6 +5,7 @@ import connectDB from "./config/database.js";
 import seedAdmin from "./seeder/adminSeed.js";
 import authRoutes from "./routes/authRoutes.js";
 import bookRoutes from "./routes/bookRoutes.js";
+import borrowRoutes from "./routes/borrowRoutes.js";
 import connectCloudinary from "./config/cloudinary.js";
 import multer from "multer";
 
@@ -29,6 +30,7 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/borrow", borrowRoutes);
 app.use("/api", upload.array("images", 5), bookRoutes);
 
 connectDB()

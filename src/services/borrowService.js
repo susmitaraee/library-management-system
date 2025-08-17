@@ -72,30 +72,65 @@ const fetchBorrowStatistics = async () => {
   }
 };
 
-// Get all
-const getAllBorrowings = async (filters) => {
-  return Borrowing.find(filters)
-    .populate("studentId", "name class roll")
-    .populate("bookId", "title author shelf");
+// Get All Borrowings
+const getAllBorrowings = async (queryParams) => {
+  const { studentId, bookId, status, className, faculty } = queryParams;
+  let filters = {};
+
+  if (studentId) filters.studentId = studentId;
+  if (bookId) filters.bookId = bookId;
+  if (status) filters.status = status;
+  if (className) filters.className = className;
+  if (faculty) filters.faculty = faculty;
+
+  return Borrowing.find(filters);
 };
 
-// Get by ID
+// Get Borrowing by ID
 const getBorrowingById = async (id) => {
-  return Borrowing.findById(id)
-    .populate("studentId", "name class roll")
-    .populate("bookId", "title author shelf");
+  return Borrowing.findById(id);
 };
 
-// Update borrowing
+// Update Borrowing
 const updateBorrowing = async (id, updateData) => {
-  return Borrowing.findByIdAndUpdate(id, updateData, { new: true })
-    .populate("studentId", "name class roll")
-    .populate("bookId", "title author shelf");
+  const borrowing = await Borrowing.findByIdAndUpdate(id, updateData, {
+    new: true,
+  });
+
+  if (!borrowing) return null;
+
+  const today = new Date();
+  const dueDate = new Date(borrowing.dueDate);
+
+  if (borrowing.status === "Borrowed") {
+    const diffTime = dueDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) borrowing.status = "Overdue";
+    else if (diffDays <= 3) borrowing.status = "Due Soon";
+
+    await borrowing.save();
+  }
+
+  return borrowing;
 };
 
-// Delete borrowing
+// Delete Borrowing
 const deleteBorrowing = async (id) => {
   return Borrowing.findByIdAndDelete(id);
+};
+
+// Settle Borrowing
+const settleBorrow = async (borrowId) => {
+  const borrow = await Borrowing.findById(borrowId);
+  if (!borrow) {
+    throw new Error("Borrow record not found");
+  }
+
+  borrow.status = "Returned";
+  borrow.returnDate = new Date();
+
+  return await borrow.save();
 };
 
 export default {
@@ -105,4 +140,5 @@ export default {
   getBorrowingById,
   updateBorrowing,
   deleteBorrowing,
+  settleBorrow,
 };
