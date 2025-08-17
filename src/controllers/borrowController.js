@@ -60,16 +60,6 @@ const getBorrowingById = async (req, res) => {
   }
 };
 
-// Create / Add Borrowing
-const createBorrowing = async (req, res) => {
-  try {
-    const borrowing = await borrowService.addBorrowing(req.body);
-    res.status(201).json(borrowing);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
 // Update Borrowing
 const updateBorrowing = async (req, res) => {
   try {

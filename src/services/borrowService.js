@@ -2,12 +2,7 @@ import Book from "../models/bookModel.js";
 import Student from "../models/StudentModel.js";
 import Borrowing from "../models/BorrowModel.js";
 
-const processBorrowing = async ({
-  bookNumber,
-  studentID,
-  borrowDate,
-  dueDate,
-}) => {
+const createBorrow = async ({ bookNumber, studentID, borrowDate, dueDate }) => {
   const book = await Book.findOne({ bookNumber });
   if (!book) {
     throw new Error("Book not found");
@@ -139,7 +134,7 @@ const settleBorrow = async (borrowId) => {
 };
 
 export default {
-  processBorrowing,
+  createBorrow,
   fetchBorrowStatistics,
   getAllBorrowings,
   getBorrowingById,
