@@ -37,10 +37,11 @@ const getBorrowStatistics = async (req, res) => {
   }
 };
 
-// GetAll
+// Get All Borrowings
 const getAllBorrowings = async (req, res) => {
   try {
     const borrowings = await borrowService.getAllBorrowings(req.query);
+
     res.status(200).json(borrowings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -51,9 +52,11 @@ const getAllBorrowings = async (req, res) => {
 const getBorrowingById = async (req, res) => {
   try {
     const borrowing = await borrowService.getBorrowingById(req.params.id);
+
     if (!borrowing) {
       return res.status(404).json({ message: "Borrowing not found" });
     }
+
     res.status(200).json(borrowing);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -67,9 +70,11 @@ const updateBorrowing = async (req, res) => {
       req.params.id,
       req.body
     );
+
     if (!borrowing) {
       return res.status(404).json({ message: "Borrowing not found" });
     }
+
     res.status(200).json(borrowing);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -80,9 +85,11 @@ const updateBorrowing = async (req, res) => {
 const deleteBorrowing = async (req, res) => {
   try {
     const borrowing = await borrowService.deleteBorrowing(req.params.id);
+
     if (!borrowing) {
       return res.status(404).json({ message: "Borrowing not found" });
     }
+
     res.status(200).json({ message: "Borrowing deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -92,8 +99,11 @@ const deleteBorrowing = async (req, res) => {
 // Settle Borrowing
 const settleBorrowing = async (req, res) => {
   try {
-    const borrowing = await borrowService.settleBorrow(req.params.id);
-    res.status(200).json(borrowing);
+    await borrowService.settleBorrow(req.params.id);
+
+    res
+      .status(200)
+      .json({ message: "Borrow settled successfully, book returned" });
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

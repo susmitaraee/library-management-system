@@ -75,6 +75,7 @@ const fetchBorrowStatistics = async () => {
 // Get All Borrowings
 const getAllBorrowings = async (queryParams) => {
   const { studentId, bookId, status, className, faculty } = queryParams;
+
   let filters = {};
 
   if (studentId) filters.studentId = studentId;
@@ -97,7 +98,9 @@ const updateBorrowing = async (id, updateData) => {
     new: true,
   });
 
-  if (!borrowing) return null;
+  if (!borrowing) {
+    return null;
+  }
 
   const today = new Date();
   const dueDate = new Date(borrowing.dueDate);
@@ -106,8 +109,11 @@ const updateBorrowing = async (id, updateData) => {
     const diffTime = dueDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 0) borrowing.status = "Overdue";
-    else if (diffDays <= 3) borrowing.status = "Due Soon";
+    if (diffDays < 0) {
+      borrowing.status = "Overdue";
+    } else if (diffDays <= 3) {
+      borrowing.status = "Due Soon";
+    }
 
     await borrowing.save();
   }
@@ -123,14 +129,23 @@ const deleteBorrowing = async (id) => {
 // Settle Borrowing
 const settleBorrow = async (borrowId) => {
   const borrow = await Borrowing.findById(borrowId);
+
   if (!borrow) {
     throw new Error("Borrow record not found");
   }
 
-  borrow.status = "Returned";
-  borrow.returnDate = new Date();
+  const book = await Book.findById(borrow.book);
 
-  return await borrow.save();
+  if (!book) {
+    throw new Error("Book not found for this borrow record");
+  }
+
+  book.availableBooks += 1;
+  await book.save();
+
+  await Borrowing.findByIdAndDelete(borrowId);
+
+  return { message: "Borrow settled successfully, book returned" };
 };
 
 export default {
